@@ -17,30 +17,6 @@ variable "assume_role" {
   }
 }
 
-variable "queues" {
-  type = list(object({
-    name                      = string
-    delay_seconds             = number
-    max_message_size          = number
-    message_retention_seconds = number
-    receive_wait_time_seconds = number
-  }))
-  default = [{
-    name                      = "labs-dvn-queue-1"
-    delay_seconds             = 90
-    max_message_size          = 2048
-    message_retention_seconds = 86400
-    receive_wait_time_seconds = 10
-    },
-    {
-      name                      = "labs-dvn-queue-2"
-      delay_seconds             = 0
-      max_message_size          = 1024
-      message_retention_seconds = 345600
-      receive_wait_time_seconds = 0
-  }]
-}
-
 variable "vpc" {
   type = object({
     name                     = string
@@ -139,9 +115,9 @@ variable "eks_node_group" {
     capacity_type  = "ON_DEMAND"
     instance_types = ["t3.medium"]
     scaling_config = {
-      desired_size = 2
-      max_size     = 2
-      min_size     = 2
+      desired_size = 1
+      max_size     = 1
+      min_size     = 1
     }
     iam_role_name = "labs-dvn-mini-curso-devops-e-aws-eks-node-group-role"
   }
@@ -162,4 +138,21 @@ variable "ecr_repository" {
       image_tag_mutability = "MUTABLE"
     }
   ]
+}
+
+variable "karpenter_controller" {
+  type = object({
+    iam_role_name   = string
+    iam_policy_name = string
+  })
+  default = {
+    iam_role_name   = "labs-dvn-mini-curso-devops-e-aws-karpenter-controller-role"
+    iam_policy_name = "labs-dvn-mini-curso-devops-e-aws-karpenter-controller-policy"
+  }
+}
+
+variable "enable_karpenter" {
+  type        = bool
+  description = "Enable Karpenter installation and CRDs after the EKS cluster is created."
+  default     = false
 }
